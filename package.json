@@ -1,0 +1,28 @@
+{
+  "name": "avalon-js",
+  "version": "0.1.0",
+  "description": "A fully-featured, cross-platform, open source visual novel engine.",
+  "main": "avalon.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://jluchiji@github.com/jluchiji/avalon-js.git"
+  },
+  "keywords": [
+    "game",
+    "visual",
+    "novel",
+    "galgame"
+  ],
+  "author": "Denis Luchkin-Zhou <wyvernzora@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jluchiji/avalon-js/issues"
+  },
+  "homepage": "https://github.com/jluchiji/avalon-js#readme"
+}
