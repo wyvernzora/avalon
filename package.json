@@ -24,5 +24,9 @@
   "bugs": {
     "url": "https://github.com/jluchiji/avalon-js/issues"
   },
-  "homepage": "https://github.com/jluchiji/avalon-js#readme"
+  "homepage": "https://github.com/jluchiji/avalon-js#readme",
+  "dependencies": {
+    "lodash": "^3.9.3",
+    "react": "^0.13.3"
+  }
 }
