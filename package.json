@@ -28,5 +28,9 @@
   "dependencies": {
     "lodash": "^3.9.3",
     "react": "^0.13.3"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0"
   }
 }
