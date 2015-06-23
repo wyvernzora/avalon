@@ -4,8 +4,6 @@
 //                                                                            //
 // -------------------------------------------------------------------------- //
 import _            from 'lodash';
-import React        from 'react';
-import GameWorld    from './components/game-world';
 import EventEmitter from 'event-emitter';
 
 // Engine emitter, also the root export object
@@ -27,13 +25,20 @@ Engine.bootstrap = function(options) {
 };
 
 // initialize(), called when the engine is setting up the renderer side
-Engine.initialize = function(options) {
+Engine.initialize = function(global, options) {
   if (!Engine._initialized) {
     Engine.platform.initialize(options);
     Engine._initialized = true;
 
+    // Set up global variables
+    window.$ = window.jQuery = require('jquery');
+    require('velocity-animate');
+
     // Render game components into the HTML DOM
-    GameWorld.start();
+    const Sprite = require('./graphics/sprite');
+    let s = new Sprite();
+    s.mount(document.body);
+    Engine.sprite = s;
   }
 };
 
@@ -45,7 +50,7 @@ Engine.exit = function() {
 
 
 // -------------------------------------------------------------------------- //
-// 
+//
 // -------------------------------------------------------------------------- //
 
 export default Engine;
