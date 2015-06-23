@@ -4,12 +4,6 @@
 //                                                                            //
 // -------------------------------------------------------------------------- //
 
+module.exports = require('./lib/engine.js');
 
-if (typeof window === 'undefined') {
-
-  module.exports = require('./lib/bootstrap.js');
-
-} else {
-
-  module.exports = require('./lib/debug.js');
-}
+module.exports.$ = require('jquery');

@@ -26,8 +26,12 @@
   },
   "homepage": "https://github.com/jluchiji/avalon-js#readme",
   "dependencies": {
+    "event-emitter": "^0.3.3",
+    "jquery": "^2.1.4",
+    "jquery.transit": "^0.9.12",
     "lodash": "^3.9.3",
-    "react": "^0.13.3"
+    "react": "^0.13.3",
+    "reflux": "^0.2.8"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
