@@ -27,9 +27,11 @@
   "homepage": "https://github.com/jluchiji/avalon-js#readme",
   "dependencies": {
     "event-emitter": "^0.3.3",
+    "jquery": "^2.1.4",
     "lodash": "^3.9.3",
     "shortid": "^2.2.2",
-    "velocity-animate": "^1.2.2"
+    "velocity-animate": "^1.2.2",
+    "victor": "^0.2.6"
   },
   "devDependencies": {
     "gulp": "^3.9.0",

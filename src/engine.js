@@ -35,10 +35,7 @@ Engine.initialize = function(global, options) {
     require('velocity-animate');
 
     // Render game components into the HTML DOM
-    const Sprite = require('./graphics/sprite');
-    let s = new Sprite();
-    s.mount(document.body);
-    Engine.sprite = s;
+    
   }
 };
 

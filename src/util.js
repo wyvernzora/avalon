@@ -3,6 +3,9 @@
 // Various misc utilities that don't fit anywhere else.                       //
 //                                                                            //
 // -------------------------------------------------------------------------- //
+import _ from 'lodash';
+
+// Root namespace object and exports
 var Util = { }; export default Util;
 
 // Binds the specified methods in ES6 classes
