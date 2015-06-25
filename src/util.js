@@ -29,4 +29,5 @@ Util.first = function() {
       return arguments[i];
     }
   }
+  return null;
 };

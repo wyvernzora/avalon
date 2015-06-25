@@ -119,6 +119,11 @@ Electron.initialize = function() {
     Engine.emit(`electron-${name}`, params);
   });
 
+  // Setup environment variables for game logic
+  Engine.env = { };
+  Engine.env.width  = Electron._remote.getContentSize()[0];
+  Engine.env.height = Electron._remote.getContentSize()[1];
+  Engine.env.name   = Electron._remote.getTitle();
 };
 
 // Platform-specific game termination code

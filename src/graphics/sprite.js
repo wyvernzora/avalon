@@ -10,6 +10,7 @@ import ShortID  from 'shortid';
 import Velocity from 'velocity-animate';
 
 import Util     from '../util';
+import Params   from './params';
 
 // Basic sprite without any advanced functionality.
 // Mounts as a <div> and all styling is done via the constructor.
@@ -56,6 +57,7 @@ export default class Sprite {
     this._scale   = new Vector(1, 1);
     this._transl  = new Vector(0, 0);
     this._rotate  = 0;
+    this._opacity = 1;
 
     // Save additional styles, which override anything else
     this._style = options.style || { };
@@ -85,13 +87,14 @@ export default class Sprite {
     }
 
     // Determine eventual transform details
-    this._pos.x    = Util.first(params.x, this._pos.x);
-    this._pos.y    = Util.first(params.y, this._pos.y);
-    this._transl.x = Util.first(params.translateX, this._transl.x);
-    this._transl.y = Util.first(params.translateY, this._transl.y);
-    this._scale.x  = Util.first(params.scaleX, params.scale, this._scale.x);
-    this._scale.y  = Util.first(params.scaleY, params.scale, this._scale.y);
-    this._rotate   = Util.first(params.rotate, this._rotate);
+    this._pos.x    = Params.apply(this._pos.x, params.x);
+    this._pos.y    = Params.apply(this._pos.y, params.y);
+    this._transl.x = Params.apply(this._transl.x, params.translateX);
+    this._transl.y = Params.apply(this._transl.y, params.translateY);
+    this._scale.x  = Params.apply(this._scale.x, params.scaleX, params.scale);
+    this._scale.y  = Params.apply(this._scale.y, params.scaleY, params.scale);
+    this._rotate   = Params.apply(this._rotate, params.rotate);
+    this._opacity  = Params.apply(this._opacity, params.opacity);
 
     let state = {
       translateZ: 0, // Force hardware acceleration
@@ -99,17 +102,21 @@ export default class Sprite {
       translateY: this._pos.y + this._transl.y,
       scaleX:     this._scale.x,
       scaleY:     this._scale.y,
-      rotate:     this._rotate
+      rotate:     this._rotate,
+      opacity:    this._opacity
     };
 
     if (!animation) {
       animation = { duration: 0 };
+    } else {
+      animation = _.assign({
+        duration: 300
+      }, animation);
     }
     Velocity(this._domNode, state, animation);
 
     return this;
   }
-
 
   css(prop, value) {
     this._domNode.css(prop, value);
