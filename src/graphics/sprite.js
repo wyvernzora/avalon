@@ -15,40 +15,61 @@ import Util     from '../util';
 // Mounts as a <div> and all styling is done via the constructor.
 export default class Sprite {
 
-  constructor(options) {
+  constructor(width, height, options) {
 
+    if (!width || !height) {
+      throw new Error('Width and height are required for a Sprite.');
+    }
+
+    // Set default options
+    options = _.merge({
+      origin: {
+        x: width / 2,
+        y: height / 2
+      }
+    }, options);
+
+    // Initialize properties (non-animatable)
     this._id      = ShortID.generate();
-    this._domNode = null;
+    this._origin  = Vector.fromObject(options.origin).unfloat();
+    this._domNode = $(document.createElement('div'))
+      .attr({ id: this._id, class: 'avalon sprite' })
+      .css({
+        display:        'block',
+        position:       'absolute',
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        '-webkit-backface-visibility': 'hidden'
+      })
+      .css({
+        width:      width,
+        height:     height,
+        top:        -this._origin.y,
+        left:       -this._origin.x,
+        transform: `translate(0, 0) scale(1) rotate(0deg)`,
+        transformOriginX: this._origin.x,
+        transformOriginY: this._origin.y
+      });
 
-    this.setSize(options.size);
-    this.setScale(options.scale);
-    this.setOrigin(options.origin);
-    this.setPosition(options.position);
+    // Default values for animatable properties
+    this._pos     = new Vector(0, 0);
+    this._scale   = new Vector(1, 1);
+    this._transl  = new Vector(0, 0);
+    this._rotate  = 0;
 
     // Save additional styles, which override anything else
     this._style = options.style || { };
-
-    //Util.bind(this, 'mount', 'unmount', 'getDomNode');
   }
 
   // Creates the underlying HTML element and appends it as the last child of the
   // specified HTML element.
   mount(element) {
-
-    // Create the DOM node and initialize attributes
-    this._domNode = $(document.createElement('div'));
-    this._domNode.attr('id', this._id);
-    this._domNode.attr('class', 'avalon sprite');
-
-    this.update(null);
-
     $(element).append(this._domNode);
   }
 
   // Removes the underlying HTML element from DOM.
   unmount() {
     this._domNode.remove();
-    this._domNode = null;
   }
 
   // Gets the reference to the underlying HTML element.
@@ -56,107 +77,42 @@ export default class Sprite {
     return this._domNode;
   }
 
+  // Moves the sprite, optionally with animation
+  move(params, animation) {
 
-  css(prop, value) {
-    this._style[prop] = value;
-  }
+    if (!_.isObject(params)) {
+      throw new Error('move() parameters must be an object.');
+    }
 
-  // Recalculate changes and apply them to the DOM
-  update(animation) {
+    // Determine eventual transform details
+    this._pos.x    = Util.first(params.x, this._pos.x);
+    this._pos.y    = Util.first(params.y, this._pos.y);
+    this._transl.x = Util.first(params.translateX, this._transl.x);
+    this._transl.y = Util.first(params.translateY, this._transl.y);
+    this._scale.x  = Util.first(params.scaleX, params.scale, this._scale.x);
+    this._scale.y  = Util.first(params.scaleY, params.scale, this._scale.y);
+    this._rotate   = Util.first(params.rotate, this._rotate);
 
-    let params = {
-      top:    this.getBoxPosition().y,
-      left:   this.getBoxPosition().x,
-      scaleX: this._scale.x,
-      scaleY: this._scale.y
+    let state = {
+      translateZ: 0, // Force hardware acceleration
+      translateX: this._pos.x + this._transl.x,
+      translateY: this._pos.y + this._transl.y,
+      scaleX:     this._scale.x,
+      scaleY:     this._scale.y,
+      rotate:     this._rotate
     };
 
-    this._domNode
-      .css('display', 'block')
-      .css('width', this.getUnscaledSize().x)
-      .css('height', this.getUnscaledSize().y)
-      .css('transform-origin-x', this._origin.x)
-      .css('transform-origin-y', this._origin.y);
-
-    _.map(Sprite.defaultStyles, (v, k) => { this._domNode.css(_.kebabCase(k), v); });
-    _.map(this._style, (v, k) => { this._domNode.css(_.kebabCase(k), v); });
-
-    if (animation) {
-      return Velocity(this._domNode, params,
-        animation.duration || 300, animation.easing || 'ease');
-    } else {
-      return Velocity(this._domNode, params, 0);
+    if (!animation) {
+      animation = { duration: 0 };
     }
-
-  }
-
-  // Sets the size of the sprite
-  setSize(size) {
-    size = size || { width: 20, height: 20 };
-    if (typeof size === 'number') {
-      size = { width: size, height: size };
-    }
-    this._size  = new Vector(size.width, size.height);
+    Velocity(this._domNode, state, animation);
 
     return this;
   }
 
-  // Returns the actual (scaled) size of the sprite
-  getSize() {
-    return this._size.multiply(this._scale);
+
+  css(prop, value) {
+    this._domNode.css(prop, value);
   }
 
-  // Returns the unscaled size of the sprite
-  getUnscaledSize() {
-    return this._size;
-  }
-
-  // Sets the position of the sprite origin
-  setPosition(position) {
-    position = position || { x: 0, y: 0 };
-    this._position = Vector.fromObject(position).subtract(this._origin);
-    return this;
-  }
-
-  // Returns the position of the sprite origin
-  getPosition() {
-    return this._position.add(this._origin);
-  }
-
-  // Returns the position of the top-left corner of the sprite
-  getBoxPosition() {
-    return this._position;
-  }
-
-  // Sets the scale of the sprite
-  setScale(scale) {
-    scale = scale || 1.0;
-    this._scale = new Vector(scale, scale);
-    return this;
-  }
-
-  // Sets the origin of the sprite
-  setOrigin(origin) {
-    origin = origin || { x: this._size.x / 2, y: this._size.y / 2 };
-    this._origin = Vector.fromObject(origin).unfloat();
-    return this;
-  }
 }
-
-// Default styles of a sprite
-Sprite.defaultStyles = {
-  position:       'absolute',
-  backgroundSize: 'contain',
-  backgroundRepeat: 'no-repeat'
-};
-
-// Various utility functions used in the Sprite class
-Sprite.util = { };
-
-// Converts object representation of CSS styles to actual CSS string
-Sprite.util.obj2css = function(styles) {
-  return _.chain(styles)
-    .map((v, k) => { return { prop: _.kebabCase(k), value: v }; })
-    .reduce((m, v) => { return m + `${v.prop}:${v.value};`; }, "")
-    .value();
-};

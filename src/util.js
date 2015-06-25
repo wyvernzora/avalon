@@ -21,3 +21,12 @@ Util.bind = function(self) {
   }
 
 };
+
+// Returns the first argument that is not null or undefined
+Util.first = function() {
+  for (var i = 0; i < arguments.length; i++) {
+    if (!_.isNull(arguments[i]) && !_.isUndefined(arguments[i])) {
+      return arguments[i];
+    }
+  }
+};
