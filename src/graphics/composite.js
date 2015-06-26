@@ -29,7 +29,7 @@ export default class CompositeSprite extends Sprite {
     this._children.push(sprite);
   }
 
-  
+
 
 
 }
