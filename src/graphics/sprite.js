@@ -13,7 +13,6 @@ import Util     from '../util';
 import Params   from './params';
 
 // Basic sprite without any advanced functionality.
-// Mounts as a <div> and all styling is done via the constructor.
 export default class Sprite {
 
   constructor(width, height, options) {
@@ -102,7 +101,7 @@ export default class Sprite {
       translateY: this._pos.y + this._transl.y,
       scaleX:     this._scale.x,
       scaleY:     this._scale.y,
-      rotate:     this._rotate,
+      rotateZ:    this._rotate,
       opacity:    this._opacity
     };
 
@@ -118,6 +117,8 @@ export default class Sprite {
     return this;
   }
 
+  // Sets a CSS property on the underlying DOM node
+  // Overrides all other styles, use with caution!
   css(prop, value) {
     this._domNode.css(prop, value);
   }

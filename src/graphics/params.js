@@ -16,7 +16,7 @@ Params.apply = function(original) {
 
   // Find the first parameter that is not null or undefined
   let chosen = Util.first.apply(this, Array.prototype.slice.call(arguments, 1));
-  if (!chosen) { return original; }
+  if (_.isNull(chosen)) { return original; }
   let parsed = Params.parse(chosen);
 
   if (parsed) {
