@@ -32,3 +32,6 @@ node_modules
 # Private files
 *private.*
 coverage-report.html
+
+# Built files
+lib/
