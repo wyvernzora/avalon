@@ -15,42 +15,24 @@ import Params   from './params';
 // Basic sprite without any advanced functionality.
 export default class Sprite {
 
-  constructor(width, height, options) {
-
-    if (!width || !height) {
-      throw new Error('Width and height are required for a Sprite.');
-    }
-
-    // Set default options
-    options = _.merge({
-      origin: {
-        x: width / 2,
-        y: height / 2
-      }
-    }, options);
+  constructor(size, origin, image) {
 
     // Initialize properties (non-animatable)
     this._id      = ShortID.generate();
-    this._origin  = Vector.fromObject(options.origin).unfloat();
     this._mounted = false;
     this._domNode = $(document.createElement('div'))
       .attr({ id: this._id, class: 'avalon sprite' })
       .css({
         display:        'block',
         position:       'absolute',
-        backgroundSize: 'contain',
         backgroundRepeat: 'no-repeat',
-        '-webkit-backface-visibility': 'hidden'
-      })
-      .css({
-        width:      width,
-        height:     height,
-        top:        -this._origin.y,
-        left:       -this._origin.x,
+        backgroundPosition: 'center',
         transform: `translate(0, 0) scale(1) rotate(0deg)`,
-        transformOriginX: this._origin.x,
-        transformOriginY: this._origin.y
+        '-webkit-backface-visibility': 'hidden'
       });
+    this.resize(size, origin, image, { immediate: true });
+    this._promise = Promise.resolve();
+    this._parent  = null;
 
     // Default values for animatable properties
     this._pos     = new Vector(0, 0);
@@ -58,9 +40,6 @@ export default class Sprite {
     this._transl  = new Vector(0, 0);
     this._rotate  = 0;
     this._opacity = 1;
-
-    // Save additional styles, which override anything else
-    this._style = options.style || { };
   }
 
   // Creates the underlying HTML element and appends it as the last child of the
@@ -69,6 +48,7 @@ export default class Sprite {
     if (this._mounted) { return; }
     $(element).append(this._domNode);
     this._mounted = true;
+    this._parent = $(element);
     return this;
   }
 
@@ -77,6 +57,7 @@ export default class Sprite {
     if (!this._mounted) { return; }
     this._domNode.remove();
     this._mounted = false;
+    this._parent = null;
     return this;
   }
 
@@ -85,8 +66,8 @@ export default class Sprite {
     return this._domNode;
   }
 
-  // Moves the sprite, optionally with animation
-  move(params, animation) {
+  // Transforms the sprite, optionally with animation
+  transform(params, animation) {
 
     if (!_.isObject(params)) {
       throw new Error('move() parameters must be an object.');
@@ -119,20 +100,82 @@ export default class Sprite {
         duration: 300
       }, animation);
     }
-    Velocity(this._domNode, state, animation);
+    this._promise = Velocity(this._domNode, state, animation);
 
     return this;
   }
 
   // Resizes the sprite, active immediately. Not animatable.
-  resize(width, height, options) {
+  resize(size, origin, image, options) {
 
+    this._queueAction(options && options.immediate, () => {
+      // Make sure the size parameter is valid
+      if (!size) { size = { }; }
+      let w = Util.first(size.width,  size.w, size.x);
+      let h = Util.first(size.height, size.h, size.y);
+      if (!_.isNumber(w) || !_.isNumber(h)) {
+        throw new Error('Sprite dimensions are required!');
+      }
+
+      // Generate the default origin if it is not provided
+      origin = _.assign({ x: w / 2, y: h / 2 }, origin);
+
+      // Assign the variables and update the DOM node
+      this._origin = Vector.fromObject(origin).unfloat();
+
+
+
+      let state = {
+        width:   w,
+        height:  h,
+        top:    -this._origin.y,
+        left:   -this._origin.x,
+        transformOriginX: this._origin.x,
+        transformOriginY: this._origin.y,
+        backgroundImage:  image
+      };
+      this._domNode.css(state);
+    });
+
+    return this;
   }
 
   // Sets a CSS property on the underlying DOM node
   // Overrides all other styles, use with caution!
-  css(prop, value) {
-    this._domNode.css(prop, value);
+  css(prop, value, options) {
+
+    this._queueAction(options && options.immediate, () => {
+      this._domNode.css(prop, value);
+    });
+
+    return this;
+  }
+
+  // Adds an action to the end of the action queue
+  _queueAction(immediate, func) {
+    if (immediate) { func(); }
+    else { this._promise = this._promise.then(func); }
+  }
+
+  // Cross-fades the resize/bg operation by swapping the underlying
+  // DOM node.
+  _crossfade(size, origin, image, animation) {
+
+    if (!this._parent) {
+      this.resize(size, origin, image, { immediate: true });
+    }
+
+    // Create a clone of current element, attach it to the DOM
+    // Also hide the actual node of this sprite
+    let cloak = this._domNode.clone();
+    this._parent.append(cloak);
+    //this._domNode.css('opacity', 0);
+
+    // Resize current node and apply the new image
+    this.resize(size, origin, image, { immediate: true });
+
+    
+
   }
 
 }

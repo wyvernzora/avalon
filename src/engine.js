@@ -34,8 +34,13 @@ Engine.initialize = function(global, options) {
     window.$ = window.jQuery = require('jquery');
     require('velocity-animate');
 
+    if (Engine.env.dev) {
+      const Dev = require('./devmode');
+      Dev.showSpriteBounds();
+    }
+
     // Render game components into the HTML DOM
-    
+
   }
 };
 

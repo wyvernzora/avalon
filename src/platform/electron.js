@@ -59,9 +59,10 @@ Electron.bootstrap = function(options, next) {
     // TODO Validate/filter options
     Electron._frame = new BrowserWindow(options.window);
     Electron._frame.loadUrl(`file://${options.main}`);
+    Electron._frame.options = options;
 
     // Open devtools if so specified in options
-    if (options.openDevTools) {
+    if (options.dev) {
       Electron._frame.openDevTools({ detach: true });
     }
 
@@ -120,10 +121,7 @@ Electron.initialize = function() {
   });
 
   // Setup environment variables for game logic
-  Engine.env = { };
-  Engine.env.width  = Electron._remote.getContentSize()[0];
-  Engine.env.height = Electron._remote.getContentSize()[1];
-  Engine.env.name   = Electron._remote.getTitle();
+  Engine.env = Electron._remote.options;
 };
 
 // Platform-specific game termination code
