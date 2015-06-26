@@ -32,6 +32,7 @@ export default class Sprite {
     // Initialize properties (non-animatable)
     this._id      = ShortID.generate();
     this._origin  = Vector.fromObject(options.origin).unfloat();
+    this._mounted = false;
     this._domNode = $(document.createElement('div'))
       .attr({ id: this._id, class: 'avalon sprite' })
       .css({
@@ -65,12 +66,18 @@ export default class Sprite {
   // Creates the underlying HTML element and appends it as the last child of the
   // specified HTML element.
   mount(element) {
+    if (this._mounted) { return; }
     $(element).append(this._domNode);
+    this._mounted = true;
+    return this;
   }
 
   // Removes the underlying HTML element from DOM.
   unmount() {
+    if (!this._mounted) { return; }
     this._domNode.remove();
+    this._mounted = false;
+    return this;
   }
 
   // Gets the reference to the underlying HTML element.
@@ -115,6 +122,11 @@ export default class Sprite {
     Velocity(this._domNode, state, animation);
 
     return this;
+  }
+
+  // Resizes the sprite, active immediately. Not animatable.
+  resize(width, height, options) {
+
   }
 
   // Sets a CSS property on the underlying DOM node
