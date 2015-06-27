@@ -26,7 +26,6 @@ export default class Sprite {
         display:        'block',
         position:       'absolute',
         backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
         transform: `translate(0, 0) scale(1) rotate(0deg)`,
         '-webkit-backface-visibility': 'hidden'
       });
@@ -66,7 +65,7 @@ export default class Sprite {
     return this._domNode;
   }
 
-  // Transforms the sprite, optionally with animation
+  // Transforms the sprite, optionally with animation.
   transform(params, animation) {
 
     if (!_.isObject(params)) {
@@ -140,6 +139,44 @@ export default class Sprite {
     return this;
   }
 
+  // Cross-fades the sprite image by temporarily cloning the DOM node.
+  crossfade(size, origin, image, options) {
+
+    if (!this._parent) {
+      this.resize(size, origin, image, { immediate: true });
+    }
+
+    options = _.assign({
+      duration:  100,
+      transform: null
+    }, options);
+
+    this._queueAction(options.immediate, () => {
+      // Create a clone of current element, attach it to the DOM
+      // Also hide the actual node of this sprite
+      let cloak = this._domNode.clone();
+      this._parent.append(cloak);
+      this._domNode.css('opacity', 0);
+
+      // Resize current node and apply the new image
+      // also execute the options.pre callback (if specified)
+      this.resize(size, origin, image, { immediate: true });
+      if (_.isFunction(options.before)) { options.before.call(this); }
+
+      // Crossfade nodes
+      Velocity(cloak, { opacity: 0 }, options.duration)
+        .then(() => {
+          cloak.remove();
+          if (_.isFunction(options.after)) {
+            options.after.call(this);
+          }
+        });
+      return Velocity(this._domNode, { opacity: 1 }, options.duration);
+    });
+
+    return this;
+  }
+
   // Sets a CSS property on the underlying DOM node
   // Overrides all other styles, use with caution!
   css(prop, value, options) {
@@ -155,27 +192,6 @@ export default class Sprite {
   _queueAction(immediate, func) {
     if (immediate) { func(); }
     else { this._promise = this._promise.then(func); }
-  }
-
-  // Cross-fades the resize/bg operation by swapping the underlying
-  // DOM node.
-  _crossfade(size, origin, image, animation) {
-
-    if (!this._parent) {
-      this.resize(size, origin, image, { immediate: true });
-    }
-
-    // Create a clone of current element, attach it to the DOM
-    // Also hide the actual node of this sprite
-    let cloak = this._domNode.clone();
-    this._parent.append(cloak);
-    //this._domNode.css('opacity', 0);
-
-    // Resize current node and apply the new image
-    this.resize(size, origin, image, { immediate: true });
-
-    
-
   }
 
 }
