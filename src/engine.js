@@ -34,10 +34,24 @@ Engine.initialize = function(global, options) {
     window.$ = window.jQuery = require('jquery');
     require('velocity-animate');
 
+    // Development mode
     if (Engine.env.dev) {
       const Dev = require('./devmode');
       Dev.showSpriteBounds();
     }
+
+    // Setup global styles
+    window.$(document.body).css({
+      top:        0,
+      left:       0,
+      right:      0,
+      bottom:     0,
+      margin:     0,
+      padding:    0,
+      overflow:   'hidden',
+      position:   'absolute',
+      background: '#383D44',
+    });
 
     // Render game components into the HTML DOM
 
