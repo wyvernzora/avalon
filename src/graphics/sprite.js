@@ -193,6 +193,12 @@ export default class Sprite {
     return this;
   }
 
+  // Forces the browser to re-render the image.
+  // Mostly a fix for blurry images in nested sprites.
+  forceRender() {
+    this.transform({ scale: '+=0.0001' }).transform({ scale: '-=0.0001' });
+  }
+
   // Adds an action to the end of the action queue
   _queueAction(immediate, func) {
     if (immediate) { func(); }

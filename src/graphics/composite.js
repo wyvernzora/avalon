@@ -66,7 +66,7 @@ export default class CompositeSprite extends Sprite {
   }
 
   // Gets the child sprite with the specified name.
-  get(name) {
+  child(name) {
     var sprite = this._children[name];
     if (!sprite) {
       console.warn(`Sprite with the name of "${name}" not found.`);
