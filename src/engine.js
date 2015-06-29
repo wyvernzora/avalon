@@ -32,6 +32,7 @@ Engine.initialize = function(global, options) {
 
     // Set up global variables
     window.$ = window.jQuery = require('jquery');
+    window._ = window.lodash = require('lodash');
     require('velocity-animate');
 
     // Development mode
