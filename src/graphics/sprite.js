@@ -15,7 +15,7 @@ import Params   from './params';
 // Basic sprite without any advanced functionality.
 export default class Sprite {
 
-  constructor(size, origin, image) {
+  constructor(size, origin, background) {
 
     // Initialize properties (non-animatable)
     this._id      = ShortID.generate();
@@ -29,7 +29,7 @@ export default class Sprite {
         transform: `translate(0, 0) scale(1) rotate(0deg)`,
         '-webkit-backface-visibility': 'hidden'
       });
-    this.resize(size, origin, image, { immediate: true });
+    this.resize(size, origin, background, { immediate: true });
     this._promise = Promise.resolve();
     this._parent  = null;
 
@@ -41,8 +41,8 @@ export default class Sprite {
     this._opacity = 1;
   }
 
-  // Creates the underlying HTML element and appends it as the last child of the
-  // specified HTML element.
+  // Appends the underlying HTML element as the last child of the specified
+  // HTML element.
   mount(element) {
     if (this._mounted) { return; }
     $(element).append(this._domNode);
@@ -105,16 +105,13 @@ export default class Sprite {
   }
 
   // Resizes the sprite, active immediately. Not animatable.
-  resize(size, origin, image, options) {
+  resize(size, origin, background, options) {
 
     this._queueAction(options && options.immediate, () => {
       // Make sure the size parameter is valid
       if (!size) { size = { }; }
-      let w = Util.first(size.width,  size.w, size.x);
-      let h = Util.first(size.height, size.h, size.y);
-      if (!_.isNumber(w) || !_.isNumber(h)) {
-        throw new Error('Sprite dimensions are required!');
-      }
+      let w = Util.first(size.width,  size.w, size.x, 0);
+      let h = Util.first(size.height, size.h, size.y, 0);
 
       // Generate the default origin if it is not provided
       origin = _.assign({ x: w / 2, y: h / 2 }, origin);
@@ -122,17 +119,25 @@ export default class Sprite {
       // Assign the variables and update the DOM node
       this._origin = Vector.fromObject(origin).unfloat();
 
-
-
+      // Construct the styles
       let state = {
         width:   w,
         height:  h,
         top:    -this._origin.y,
         left:   -this._origin.x,
         transformOriginX: this._origin.x,
-        transformOriginY: this._origin.y,
-        backgroundImage:  image
+        transformOriginY: this._origin.y
       };
+
+      // Assign the background image/color
+      if (/#[A-F0-9]{3,6}/i.test(background)) {
+        state.backgroundColor = background;
+      } else if (_.isString(background)) {
+        state.backgroundImage = `url(${background})`;
+      } else {
+        state.background = 'transparent';
+      }
+
       this._domNode.css(state);
     });
 
