@@ -75,3 +75,9 @@ export default class CompositeSprite extends Sprite {
   }
 
 }
+
+// Make this an Avalon.js middleware module
+CompositeSprite.__avalon = true;
+CompositeSprite.globals  = {
+  CompositeSprite: CompositeSprite
+};

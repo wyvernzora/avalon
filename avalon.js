@@ -3,11 +3,14 @@
 // Avalon.js engine export file.                                              //
 //                                                                            //
 // -------------------------------------------------------------------------- //
+var Engine = require('./lib/engine');
 
-module.exports = require('./lib/engine');
+var engine = new Engine();
 
 if (typeof window !== 'undefined') {
-  module.exports.$ = require('jquery');
-  module.exports.Sprite = require('./lib/graphics/sprite');
-  module.exports.CompositeSprite = require('./lib/graphics/composite');
+  engine.use(Engine);
+  engine.use(require('./lib/graphics/sprite'));
+  engine.use(require('./lib/graphics/composite'));
 }
+
+module.exports = engine;

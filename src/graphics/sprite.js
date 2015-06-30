@@ -211,3 +211,14 @@ export default class Sprite {
   }
 
 }
+
+// Make this an Avalon.js middleware module
+Sprite.__avalon = true;
+Sprite.hooks    = {
+  'avalon.init': function(engine, options) {
+    
+  }
+};
+Sprite.globals  = {
+  Sprite: Sprite
+};

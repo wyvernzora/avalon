@@ -4,42 +4,122 @@
 //                                                                            //
 // -------------------------------------------------------------------------- //
 import _            from 'lodash';
-import EventEmitter from 'event-emitter';
+import Monologue    from 'monologue.js';
 
-// Engine emitter, also the root export object
-const Engine = EventEmitter({});
+// Avalon.js Engine, the event aggregator, also the middleware manager.
+export default class Engine extends Monologue {
 
-
-// -------------------------------------------------------------------------- //
-// Native platform integration.                                               //
-// -------------------------------------------------------------------------- //
-Engine.platform = require('./platform/electron');
-
-// bootstrap(), called when the engine is creating native resources and
-// loading extensions
-Engine.bootstrap = function(options) {
-  if (!Engine._bootstrapped) {
-    Engine.platform.bootstrap(options);
-    Engine._bootstrapped = true;
+  constructor() {
+    super();
+    this._hooks = { };
   }
-};
 
-// initialize(), called when the engine is setting up the renderer side
-Engine.initialize = function(global, options) {
-  if (!Engine._initialized) {
-    Engine.platform.initialize(options);
-    Engine._initialized = true;
+  // Attaches an extension (middleware) module to the Avalon.js engine.
+  // You can either:
+  //   a) Supply Avalon.js extension objects.
+  //   b) Call with a hook name and a callback function.
+  use() {
+    if (_.isString(arguments[0])) {
+      // Adding one hook
+      let name = arguments[0];
+      let fn   = arguments[1];
 
+      if (!_.isFunction(fn)) {
+        throw new Error('Cannot use() a non function as a hook.');
+      }
+
+      if (!this._hooks[name]) { this._hooks[name] = []; }
+      this._hooks[name].push(fn);
+
+    } else {
+      // Allow adding multiple middleware modules in a single call
+      for (var m of arguments) {
+        let self = this;
+
+        // Disallow modules that are not avalon middleware
+        if (!m.__avalon) {
+          throw new Error('Cannot use() non middleware modules.');
+        }
+
+        // Load hooks
+        m.hooks = m.hooks || { };
+        _.map(m.hooks, (fn, name) => {
+          if (!self._hooks[name]) { self._hooks[name] = []; }
+          self._hooks[name].push(fn);
+        });
+
+        // Load globals
+        m.globals = m.globals || { };
+        _.map(m.globals, (value, name) => { self[name] = value; });
+      }
+    }
+  }
+
+  // Executes hook callbacks in the order they were added, with the given
+  // context and options object. You can modify options object in middleware
+  // callbacks, and changes will be visible to the subsequent middleware.
+  hook(name, context, options) {
+    if (!this._hooks[name]) {
+      throw new Error(`Attempt to invoke an undefined engine hook: ${name}`);
+    }
+
+    // Use promises to queue (possibly) async hook function calls
+    let self    = this;
+    let promise = Promise.resolve();
+    _.map(this._hooks[name], (fn, name) => {
+      promise = promise.then(() => {
+        return fn.apply(self, context, options);
+      });
+    });
+    return promise;
+  }
+
+  // Kickstarts the Avalon.js engine.
+  // Usually called to create all neccessary resources for the HTML DOM to
+  // initialize.
+  boot(options) {
+    let self = this;
+
+    if (!this._bootstrapped) {
+      this.emit('avalon.preboot', options);
+      this.hook('avalon.boot', this, options)
+        .then(() => { self.emit('avalon.postboot', options); });
+      this._bootstrapped = true;
+    }
+  }
+
+  // Initializes the Avalon.js game.
+  // Usually called from within a browser context to initialize DOM and
+  // game logic.
+  init(options) {
+    let self = this;
+
+    if (!this._initialized) {
+      this.emit('avalon.preinit', options);
+      this.hook('avalon.init', this, options)
+        .then(() => { self.emit('avalon.postinit', options); });
+      this._initialized = true;
+    }
+  }
+
+  // Terminates the Avalon.js game.
+  // Usually called to request application termination, though callbacks may
+  // cancel that.
+  quit(options) {
+    this.emit('avalon.quitting', options);
+    this.hook('avalon.quit', this, options)
+      .then(() => { self.emit('avalon.quit', options); });
+  }
+}
+
+// Make a middleware module with default callbacks
+Engine.__avalon = true;
+Engine.hooks = {
+  'avalon.init': function(engine, options) {
     // Set up global variables
     window.$ = window.jQuery = require('jquery');
     window._ = window.lodash = require('lodash');
     require('velocity-animate');
-
-    // Development mode
-    if (Engine.env.dev) {
-      const Dev = require('./devmode');
-      Dev.showSpriteBounds();
-    }
 
     // Setup global styles
     window.$(document.body).css({
@@ -53,21 +133,5 @@ Engine.initialize = function(global, options) {
       position:   'absolute',
       background: '#383D44',
     });
-
-    // Render game components into the HTML DOM
-
   }
 };
-
-// exit(), stops the game and terminates the program without further warning
-Engine.exit = function() {
-  Engine.platform.exit();
-};
-
-
-
-// -------------------------------------------------------------------------- //
-//
-// -------------------------------------------------------------------------- //
-
-export default Engine;
