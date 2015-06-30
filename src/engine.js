@@ -68,7 +68,7 @@ export default class Engine extends Monologue {
     let promise = Promise.resolve();
     _.map(this._hooks[name], (fn, name) => {
       promise = promise.then(() => {
-        return fn.apply(self, context, options);
+        return fn(context, options);
       });
     });
     return promise;
@@ -97,7 +97,10 @@ export default class Engine extends Monologue {
     if (!this._initialized) {
       this.emit('avalon.preinit', options);
       this.hook('avalon.init', this, options)
-        .then(() => { self.emit('avalon.postinit', options); });
+        .then(() => {
+          self.emit('avalon.postinit', options);
+          self.emit('avalon.ready');
+        });
       this._initialized = true;
     }
   }
@@ -109,6 +112,11 @@ export default class Engine extends Monologue {
     this.emit('avalon.quitting', options);
     this.hook('avalon.quit', this, options)
       .then(() => { self.emit('avalon.quit', options); });
+  }
+
+  // Calls the specified callback when the engine finishes initialization.
+  ready(fn) {
+    this.on('avalon.ready', fn);
   }
 }
 
