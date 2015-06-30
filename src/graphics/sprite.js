@@ -48,6 +48,9 @@ export default class Sprite {
     $(element).append(this._domNode);
     this._mounted = true;
     this._parent = $(element);
+    // We need this hack to sharpen the image after initial mount.
+    let self = this;
+    setTimeout(() => { self.repaint(); }, 100);
     return this;
   }
 
@@ -169,11 +172,13 @@ export default class Sprite {
       if (_.isFunction(options.before)) { options.before.call(this); }
 
       // Crossfade nodes
+      let self = this;
       Velocity(cloak, { opacity: 0 }, options.duration)
         .then(() => {
           cloak.remove();
+          self.repaint();
           if (_.isFunction(options.after)) {
-            options.after.call(this);
+            options.after.call(self);
           }
         });
       return Velocity(this._domNode, { opacity: 1 }, options.duration);
@@ -195,7 +200,7 @@ export default class Sprite {
 
   // Forces the browser to re-render the image.
   // Mostly a fix for blurry images in nested sprites.
-  forceRender() {
+  repaint() {
     this.transform({ scale: '+=0.0001' }).transform({ scale: '-=0.0001' });
   }
 
