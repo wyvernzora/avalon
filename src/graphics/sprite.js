@@ -21,14 +21,7 @@ export default class Sprite {
     this._id      = ShortID.generate();
     this._mounted = false;
     this._domNode = $(document.createElement('div'))
-      .attr({ id: this._id, class: 'avalon sprite' })
-      .css({
-        display:        'block',
-        position:       'absolute',
-        backgroundRepeat: 'no-repeat',
-        transform: `translate(0, 0) scale(1) rotate(0deg)`,
-        '-webkit-backface-visibility': 'hidden'
-      });
+      .attr({ id: this._id, class: 'avalon sprite' });
     this.resize(size, origin, background, { immediate: true });
     this._promise = Promise.resolve();
     this._parent  = null;
@@ -213,12 +206,24 @@ export default class Sprite {
 }
 
 // Make this an Avalon.js middleware module
-Sprite.__avalon = true;
-Sprite.hooks    = {
+Sprite.Extension = { __avalon: true };
+Sprite.Extension.hooks    = {
   'avalon.init': function(engine, options) {
-    
+    const styles = {
+      display: 'block',
+      position: 'absolute',
+      backgroundRepeat: 'no-repeat',
+      transform: 'translate(0, 0) scale(1) rotate(0deg)',
+      webkitBackfaceVisibility: 'hidden'
+    };
+
+    let styleNode = $(document.createElement('style'));
+    styleNode.attr('id', 'Avalon.Sprite.Styles');
+    styleNode.text('.avalon.sprite {' + Util.obj2css(styles) + '}');
+
+    $(document.head).append(styleNode);
   }
 };
-Sprite.globals  = {
+Sprite.Extension.globals  = {
   Sprite: Sprite
 };

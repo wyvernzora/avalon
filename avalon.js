@@ -9,8 +9,8 @@ var engine = new Engine();
 
 if (typeof window !== 'undefined') {
   engine.use(Engine);
-  engine.use(require('./lib/graphics/sprite'));
-  engine.use(require('./lib/graphics/composite'));
+  engine.use(require('./lib/graphics/sprite').Extension);
+  engine.use(require('./lib/graphics/composite').Extension);
 }
 
 // Check platform and apply the integration middleware

@@ -139,7 +139,6 @@ Engine.hooks = {
       padding:    0,
       overflow:   'hidden',
       position:   'absolute',
-      background: '#383D44',
     });
   }
 };

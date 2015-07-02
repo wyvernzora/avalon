@@ -31,3 +31,16 @@ Util.first = function() {
   }
   return null;
 };
+
+// Converts styles from object form into the CSS string
+Util.obj2css = function(styles) {
+  return _.chain(styles)
+    .map((v, k) => {
+      let prop = /^(webkit|moz|o|ms)/.test(k) ?
+        '-' + _.kebabCase(k) :
+        _.kebabCase(k);
+      return { prop: prop, value: v };
+    })
+    .reduce((m, v) => { return m + `${v.prop}:${v.value};`; }, "")
+    .value();
+};
