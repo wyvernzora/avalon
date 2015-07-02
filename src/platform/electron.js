@@ -138,7 +138,10 @@ Electron.hooks = {
 // Stuff to attach to the engine object
 Electron.globals = {
 
-
+  // Minimizes the game window
+  minimize: function() {
+    this._remote.minimize();
+  }
 
 };
 
