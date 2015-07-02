@@ -136,7 +136,7 @@ Electron.events = {
     (this._frame || this._remote).close();
   }
 
-}
+};
 
 // Stuff to attach to the engine object
 Electron.globals = {
