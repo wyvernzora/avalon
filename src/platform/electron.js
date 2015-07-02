@@ -123,17 +123,20 @@ Electron.hooks = {
     engine.env = engine._remote.options;
   },
 
-  // Quits the application
-  'avalon.quit': function(engine, options) {
-    if (platform === 'main') {
-      engine._frame.close();
-    } else {
-      engine._remote.close();
-    }
-  }
-
 };
 
+// Event handlers
+Electron.events = {
+
+  'window.close': function(options) {
+    this.quit();
+  },
+
+  'avalon.quit': function(options) {
+    (this._frame || this._remote).close();
+  }
+
+}
 
 // Stuff to attach to the engine object
 Electron.globals = {

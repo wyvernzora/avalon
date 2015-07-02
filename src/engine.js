@@ -51,6 +51,11 @@ export default class Engine extends Monologue {
         // Load globals
         m.globals = m.globals || { };
         _.map(m.globals, (value, name) => { self[name] = value; });
+
+        // Load event callbacks
+        m.events = m.events || { };
+        _.map(m.events, (fn, name) => { self.on(name, fn.bind(self)); });
+
       }
     }
   }
@@ -109,9 +114,17 @@ export default class Engine extends Monologue {
   // Usually called to request application termination, though callbacks may
   // cancel that.
   quit(options) {
+    let self = this;
+
+    options = options || { force: false, confirmed: true };
+
     this.emit('avalon.quitting', options);
     this.hook('avalon.quit', this, options)
-      .then(() => { self.emit('avalon.quit', options); });
+      .then(() => {
+        if (options.force || options.confirmed) {
+          self.emit('avalon.quit', options);
+        }
+      });
   }
 
   // Calls the specified callback when the engine finishes initialization.
@@ -120,9 +133,12 @@ export default class Engine extends Monologue {
   }
 }
 
-// Make a middleware module with default callbacks
-Engine.__avalon = true;
-Engine.hooks = {
+// Also export a middleware with core hooks and callbacks
+Engine.Core = { __avalon: true };
+
+Engine.Core.hooks = {
+  'avalon.boot': function(engine, options) { },
+
   'avalon.init': function(engine, options) {
     // Set up global variables
     window.$ = window.jQuery = require('jquery');
@@ -140,5 +156,7 @@ Engine.hooks = {
       overflow:   'hidden',
       position:   'absolute',
     });
-  }
+  },
+
+  'avalon.quit': function(engine, options) { }
 };

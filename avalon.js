@@ -8,7 +8,7 @@ var Engine = require('./lib/engine');
 var engine = new Engine();
 
 if (typeof window !== 'undefined') {
-  engine.use(Engine);
+  engine.use(Engine.Core);
   engine.use(require('./lib/graphics/sprite').Extension);
   engine.use(require('./lib/graphics/composite').Extension);
 }
