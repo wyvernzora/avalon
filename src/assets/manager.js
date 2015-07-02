@@ -20,7 +20,7 @@ export default class AssetManager {
   }
 
   // Mounts an asset loader to the specified name
-  mount(name, loader) {
+  use(name, loader) {
     if (!(loader instanceof AssetLoader)) {
       throw new Error('Loader must derive from Avalon.AssetLoader.');
     }
@@ -31,10 +31,12 @@ export default class AssetManager {
     return this;
   }
 
-  // Unmounts an asset loader from the specified name
-  unmount(name) {
-    delete this._loaders[name];
-    return this;
+  // Configures loaders for all paths that match a pattern
+  configure(pattern, loader) {
+    if (!(pattern instanceof RegExp)) {
+      throw new Error('Pattern must be a RegExp.');
+    }
+    this._config.push({ test: pattern, loaders: loader });
   }
 
   // Loads an asset
@@ -47,8 +49,9 @@ export default class AssetManager {
 
     // Determine which loaders to use
     let loaders = match[1].length ?
-      match[1] : _.find(this._config, (i) => { return i.test.test(file); });
-    loaders = loaders || '';
+      { loaders: match[1] } :
+      _.find(this._config, (i) => { return i.test.test(file); });
+    loaders = loaders ? loaders.loaders : '';
     loaders = _.filter(loaders.split('!').reverse());
 
     // Parse the config string
