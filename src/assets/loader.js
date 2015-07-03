@@ -5,14 +5,15 @@
 // -------------------------------------------------------------------------- //
 
 // Asset loader class, handles asset loading
+// Serves as a base class and does pretty much nothing.
 export default class AssetLoader {
 
   constructor() {
-
+    
   }
 
   load(url, options) {
-    return 'data.asar/' + url;
+    return url;
   }
 
 }

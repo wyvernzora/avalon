@@ -72,9 +72,7 @@ export default class Engine extends Monologue {
     let self    = this;
     let promise = Promise.resolve();
     _.map(this._hooks[name], (fn, name) => {
-      promise = promise.then(() => {
-        return fn(context, options);
-      });
+      promise = promise.then(_.partial(fn, context, options));
     });
     return promise;
   }
