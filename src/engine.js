@@ -142,6 +142,7 @@ Engine.Core.hooks = {
     window.$ = window.jQuery = require('jquery');
     window._ = window.lodash = require('lodash');
     require('velocity-animate');
+    require('blast-text');
 
     // Setup global styles
     window.$(document.body).css({
@@ -154,6 +155,12 @@ Engine.Core.hooks = {
       overflow:   'hidden',
       position:   'absolute',
     });
+
+    // We also need some CSS-reset work done
+    let styleNode = $(document.createElement('style'));
+    styleNode.attr('id', 'Avalon.Engine.Styles');
+    styleNode.text('* { box-sizing: border-box; }');
+    $(document.head).append(styleNode);
   },
 
   'avalon.quit': function(engine, options) { }

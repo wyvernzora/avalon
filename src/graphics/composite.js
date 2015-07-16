@@ -5,7 +5,6 @@
 // -------------------------------------------------------------------------- //
 import _      from 'lodash';
 
-import Engine from '../engine';
 import Sprite from './sprite';
 
 // Composite sprite, the sprite that has sprites inside.

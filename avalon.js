@@ -12,6 +12,7 @@ if (typeof window !== 'undefined') {
   engine.use(require('./lib/assets/manager').Extension);
   engine.use(require('./lib/graphics/sprite').Extension);
   engine.use(require('./lib/graphics/composite').Extension);
+  engine.use(require('./lib/graphics/text').Extension);
 }
 
 // Check platform and apply the integration middleware

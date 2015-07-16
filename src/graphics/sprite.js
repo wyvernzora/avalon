@@ -210,6 +210,22 @@ export default class Sprite {
     return this;
   }
 
+  // Event handlers
+  on(event, callback) {
+    this.getDomNode().on(event, callback.bind(this));
+    return this;
+  }
+
+  once(event, callback) {
+    this.getDomNode().once(event, callback.bind(this));
+    return this;
+  }
+
+  off(event, callback) {
+    this.getDomNode().off(event, callback.bind(this));
+    return this;
+  }
+
   // Adds an action to the end of the action queue
   _queueAction(immediate, func) {
     if (immediate) { func(); }
