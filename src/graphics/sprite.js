@@ -144,7 +144,7 @@ export default class Sprite {
   crossfade(size, origin, image, options) {
 
     if (!this._parent) {
-      this.resize(size, origin, image, { immediate: true });
+      return this.resize(size, origin, image, { immediate: true });
     }
 
     options = _.assign({
