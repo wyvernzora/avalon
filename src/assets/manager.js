@@ -3,10 +3,11 @@
 // Avalon.js asset manager, the facade for the asset loading.                 //
 //                                                                            //
 // -------------------------------------------------------------------------- //
-import _           from 'lodash';
-import Url         from 'url-parse';
-import QueryString from 'querystring';
-import AssetLoader from './loader';
+import _            from 'lodash';
+import QueryString  from 'querystring';
+import AssetLoader  from './loader';
+import ScriptLoader from './script-loader';
+import CharaLoader  from './character';
 
 // Regex that matches the asset path
 const PATH_REGEX = /^((?:[^\!\s]+!)*)([^\!\?]+)(?:\?(.*))?$/i;
@@ -71,6 +72,14 @@ export default class AssetManager {
 
 // Attach an extension module
 AssetManager.Extension = { __avalon: true };
-AssetManager.Extension.globals = {
-  Assets: new AssetManager()
+AssetManager.Extension.hooks = {
+
+  'avalon.init': function(engine, options) {
+
+    engine.Assets = AssetManager.instance = new AssetManager();
+
+    engine.Assets.use('script', new ScriptLoader());
+    engine.Assets.use('chara',  new CharaLoader());
+  }
+
 };

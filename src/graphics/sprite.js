@@ -197,6 +197,14 @@ export default class Sprite {
     this.transform({ scale: '+=0.0001' }).transform({ scale: '-=0.0001' });
   }
 
+  // Adds an arbitrary action to the end of the action queue
+  then(action, thisArg, ...params) {
+    this._promise = this._promise.then(() => {
+      action.bind(thisArg || this)(...params);
+    });
+    return this;
+  }
+
   // Adds an action to the end of the action queue
   _queueAction(immediate, func) {
     if (immediate) { func(); }
@@ -214,6 +222,7 @@ Sprite.Extension.hooks    = {
       position: 'absolute',
       backgroundRepeat: 'no-repeat',
       transform: 'translate(0, 0) scale(1) rotate(0deg)',
+      webkitPerspective: 1000,
       webkitBackfaceVisibility: 'hidden'
     };
 

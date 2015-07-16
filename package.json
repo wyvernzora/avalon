@@ -28,6 +28,7 @@
   "homepage": "https://github.com/jluchiji/avalon-js#readme",
   "dependencies": {
     "jquery": "^2.1.4",
+    "js-yaml": "^3.3.1",
     "lodash": "^3.9.3",
     "monologue.js": "^0.3.3",
     "shortid": "^2.2.2",
