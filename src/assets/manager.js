@@ -7,7 +7,7 @@ import _            from 'lodash';
 import QueryString  from 'querystring';
 import AssetLoader  from './loader';
 import ScriptLoader from './script-loader';
-import CharaLoader  from './character';
+import SpriteLoader from './sprite-loader';
 
 // Regex that matches the asset path
 const PATH_REGEX = /^((?:[^\!\s]+!)*)([^\!\?]+)(?:\?(.*))?$/i;
@@ -79,7 +79,7 @@ AssetManager.Extension.hooks = {
     engine.Assets = AssetManager.instance = new AssetManager();
 
     engine.Assets.use('script', new ScriptLoader());
-    engine.Assets.use('chara',  new CharaLoader());
+    engine.Assets.use('sprite', new SpriteLoader());
   }
 
 };
