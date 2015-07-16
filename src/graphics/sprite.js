@@ -143,14 +143,19 @@ export default class Sprite {
   // Cross-fades the sprite image by temporarily cloning the DOM node.
   crossfade(size, origin, image, options) {
 
-    if (!this._parent) {
-      return this.resize(size, origin, image, { immediate: true });
-    }
-
     options = _.assign({
       duration:  100,
       transform: null
     }, options);
+
+    if (!this._parent) {
+      if (_.isFunction(options.before)) { options.before.call(this); }
+      this.resize(size, origin, image, { immediate: true });
+      if (_.isFunction(options.after))  { options.after.call(this); }
+      return this;
+    }
+
+
 
     this._queueAction(options.immediate, () => {
       // Create a clone of current element, attach it to the DOM
