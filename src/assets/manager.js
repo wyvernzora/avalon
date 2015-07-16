@@ -42,7 +42,7 @@ export default class AssetManager {
 
   // Loads an asset
   // Takes an asset path like "system:ui/frm_0101a.png?option=value"
-  load(path) {
+  load(path, options) {
     let match = PATH_REGEX.exec(path);
 
     // Extract the file path
@@ -56,7 +56,7 @@ export default class AssetManager {
     loaders = _.filter(loaders.split('!').reverse());
 
     // Parse the config string
-    let options = QueryString.parse(match[3]);
+    options =  _.assign(QueryString.parse(match[3]), options);
 
     // Load the asset
     let context = file;
