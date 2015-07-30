@@ -22,7 +22,7 @@ export default class TextSprite extends Sprite {
     this.getDomNode()
       .text(value)
       .blast({ delimiter: 'char' });
-    
+
     options = _.assign({
       speed: 30
     }, options);
@@ -48,7 +48,8 @@ TextSprite.Extension.hooks = {
       fontFamily: 'Helvetica Neue, sans-serif',
       fontSize:   '28px',
       background: 'rgba(170, 170, 170, 0.5)!important',
-      lineHeight: '1.27'
+      lineHeight: '1.27',
+      'webkit-user-select': 'none'
     };
 
     let styleNode = $(document.createElement('style'));
