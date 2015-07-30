@@ -6,6 +6,7 @@
 import _            from 'lodash';
 import QueryString  from 'querystring';
 import AssetLoader  from './loader';
+import UrlLoader    from './url-loader';
 import ScriptLoader from './script-loader';
 import SpriteLoader from './sprite-loader';
 
@@ -80,6 +81,7 @@ AssetManager.Extension.hooks = {
 
     engine.Assets.use('script', new ScriptLoader());
     engine.Assets.use('sprite', new SpriteLoader());
+    engine.Assets.use('url',    new UrlLoader());
   }
 
 };

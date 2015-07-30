@@ -13,6 +13,7 @@ if (typeof window !== 'undefined') {
   engine.use(require('./lib/graphics/sprite').Extension);
   engine.use(require('./lib/graphics/composite').Extension);
   engine.use(require('./lib/graphics/text').Extension);
+  engine.use(require('./lib/audio/manager').Extension);
 }
 
 // Check platform and apply the integration middleware
